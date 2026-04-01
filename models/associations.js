@@ -1,5 +1,6 @@
 import User from "./User.js";
 import Post from "./Post.js";
+import Tag from "./Tag.js";
 
 User.hasMany(Post, {
   foreignKey: {
@@ -21,4 +22,14 @@ Post.belongsTo(User, {
   as: "user",
 });
 
-export { User, Post };
+Post.belongsToMany(Tag, {
+  through: "PostTags",
+  as: "tags",
+});
+
+Tag.belongsToMany(Post, {
+  through: "PostTags",
+  as: "posts",
+});
+
+export { User, Post, Tag };
