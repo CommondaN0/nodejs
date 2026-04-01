@@ -1,18 +1,17 @@
 import express from "express";
 import requireJson from "../middleware/requireJson.js";
-
-const users = [{name: "Bob", id: 0}];
-let fakeAi = 1;
+import { User } from "../models/User.js";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.status(200).json({ users: users });
+router.get("/", async (req, res) => {
+    const users = await User.findAll();
+    res.status(200).json({ users });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
     const id = Number(req.params.id);
-    const user = users.find(u => u.id === id);
+    const user = User.findByPk(id);
 
     if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -24,27 +23,24 @@ router.get("/:id", (req, res) => {
     });
 });
 
-router.post("/", requireJson, (req, res) => {
+router.post("/", requireJson, async (req, res) => {
     if(!req.body.name) {
         return res.status(400).json({
-            message: "Field name is require"
+            message: "Field name is required"
         })
     }
-    const newUser = {
+    const newUser = await User.create({
         name: req.body.name,
-        id: fakeAi++
-    };
-
-    users.push(newUser);
+    });
 
     res.status(201).json({
         created: newUser
     });
 });
 
-router.patch("/:id", requireJson, (req, res) => {
+router.patch("/:id", requireJson, async (req, res) => {
     const id = Number(req.params.id);
-    const user = users.find(user => user.id === id);
+    const user = User.findByPk(id);
 
     if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -55,19 +51,20 @@ router.patch("/:id", requireJson, (req, res) => {
     }
 
     user.name = req.body.name;
+    await user.save();
 
     return res.status(200).json({ updated: user });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
     const id = Number(req.params.id);
-    const index = users.findIndex(user => user.id === id);
+    const user = User.findByPk(id);
 
-    if (index === -1) {
+    if (!user) {
         return res.status(404).json({ message: "User not found" });
     }
 
-    users.splice(index, 1);
+    await user.destroy();
     
     return res.status(204).end();
 });

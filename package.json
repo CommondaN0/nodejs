@@ -7,6 +7,9 @@
     "start": "node --env-file=.env server.js"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "@sequelize/core": "^7.0.0-alpha.48",
+    "@sequelize/postgres": "^7.0.0-alpha.48",
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
   }
 }
