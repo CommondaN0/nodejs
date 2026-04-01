@@ -1,24 +1,32 @@
-import { Model, DataTypes } from "@sequelize/core";
-import { sequelize } from "../database/db.js";
+import { DataTypes, Model } from "@sequelize/core";
+import sequelize from "../database/db.js";
 
-export class User extends Model {}
+class User extends Model {}
 
 User.init(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
+      validate: {
+        notNull: {
+          msg: "Name is required",
+        },
+        notEmpty: {
+          msg: "Name cannot be empty",
+        },
+        len: {
+          args: [2, 50],
+          msg: "Name must be between 2 and 50 characters",
+        },
+      },
     },
   },
   {
     sequelize,
     modelName: "User",
-    tableName: "users",
-    timestamps: false,
   }
 );
+
+export default User;

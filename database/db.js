@@ -1,7 +1,7 @@
 import { Sequelize } from "@sequelize/core";
 import { PostgresDialect } from "@sequelize/postgres"
 
-export const sequelize = new Sequelize({
+const sequelize = new Sequelize({
     dialect: PostgresDialect,
     database: "postgres",
     user: "postgres",
@@ -9,3 +9,5 @@ export const sequelize = new Sequelize({
     host: "localhost",
     port: 5432
 });
+
+export default sequelize;

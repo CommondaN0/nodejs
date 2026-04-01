@@ -1,72 +1,112 @@
 import express from "express";
+import User from "../models/User.js";
+import Post from "../models/Post.js";
+import asyncHandler from "../middleware/asyncHandler.js";
 import requireJson from "../middleware/requireJson.js";
-import { User } from "../models/User.js";
+import parseUserId from "../middleware/parseUserId.js";
+import normalizeUserName from "../middleware/normalizeUserName.js";
+import postsRouter from "./userPosts.js";
+import ApiError from "../utils/ApiError.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
     const users = await User.findAll();
     res.status(200).json({ users });
-});
+  })
+);
 
-router.get("/:id", async (req, res) => {
-    const id = Number(req.params.id);
-    const user = User.findByPk(id);
+router.get(
+  "/:id",
+  parseUserId,
+  asyncHandler(async (req, res) => {
+    const user = await User.findByPk(req.userId, {
+      include: [
+        {
+          model: Post,
+          as: "posts",
+        },
+      ],
+    });
 
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      throw new ApiError(404, "User not found");
     }
 
-    res.status(200).json({
-        user,
-        query: req.query
-    });
-});
+    res.status(200).json({ user });
+  })
+);
 
-router.post("/", requireJson, async (req, res) => {
-    if(!req.body.name) {
-        return res.status(400).json({
-            message: "Field name is required"
-        })
-    }
-    const newUser = await User.create({
-        name: req.body.name,
+router.post(
+  "/",
+  requireJson,
+  normalizeUserName,
+  asyncHandler(async (req, res) => {
+    const user = await User.create({
+      name: req.body.name,
     });
 
-    res.status(201).json({
-        created: newUser
-    });
-});
+    res.status(201).json({ created: user });
+  })
+);
 
-router.patch("/:id", requireJson, async (req, res) => {
-    const id = Number(req.params.id);
-    const user = User.findByPk(id);
+router.post(
+  "/:id/posts",
+  requireJson,
+  parseUserId,
+  asyncHandler(async (req, res) => {
+    const user = await User.findByPk(req.userId);
 
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      throw new ApiError(404, "User not found");
     }
 
-    if (!req.body.name) {
-        return res.status(400).json({ message: "Field name is required" });
+    const post = await Post.create({
+      title: req.body.title,
+      content: req.body.content,
+      userId: user.id,
+    });
+
+    res.status(201).json({ created: post });
+  })
+);
+
+router.patch(
+  "/:id",
+  requireJson,
+  parseUserId,
+  normalizeUserName,
+  asyncHandler(async (req, res) => {
+    const user = await User.findByPk(req.userId);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
     }
 
     user.name = req.body.name;
     await user.save();
 
-    return res.status(200).json({ updated: user });
-});
+    res.status(200).json({ updated: user });
+  })
+);
 
-router.delete("/:id", async (req, res) => {
-    const id = Number(req.params.id);
-    const user = User.findByPk(id);
+router.delete(
+  "/:id",
+  parseUserId,
+  asyncHandler(async (req, res) => {
+    const user = await User.findByPk(req.userId);
 
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      throw new ApiError(404, "User not found");
     }
 
     await user.destroy();
-    
-    return res.status(204).end();
-});
+    res.status(204).end();
+  })
+);
+
+router.use("/:userId/posts", postsRouter);
 
 export default router;
