@@ -21,6 +21,8 @@ const env = {
   dbName: requireEnv("DB_NAME"),
   dbUser: requireEnv("DB_USER"),
   dbPassword: requireEnv("DB_PASSWORD"),
+  jwtSecret: requireEnv("JWT_SECRET"),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
 };
 
 export default env;
