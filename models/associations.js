@@ -1,6 +1,7 @@
 import User from "./User.js";
 import Post from "./Post.js";
 import Tag from "./Tag.js";
+import RefreshToken from "./Refreshtoken.js";
 
 User.hasMany(Post, {
   foreignKey: {
@@ -32,4 +33,7 @@ Tag.belongsToMany(Post, {
   as: "posts",
 });
 
-export { User, Post, Tag };
+User.hasMany(RefreshToken, { foreignKey: "userId", as: "refreshTokens" });
+RefreshToken.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+export { User, Post, Tag, RefreshToken };

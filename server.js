@@ -4,6 +4,7 @@ import sequelize from "./database/db.js";
 import "./models/User.js";
 import "./models/Post.js";
 import "./models/Tag.js";
+import "./models/RefreshToken.js";
 import "./models/associations.js";
 
 async function start() {

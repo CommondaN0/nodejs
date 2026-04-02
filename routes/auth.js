@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.post("/register", requireJson, asyncHandler(authController.register));
 router.post("/login", requireJson, asyncHandler(authController.login));
+router.post("/refresh", asyncHandler(authController.refresh));
 router.post("/logout", asyncHandler(authController.logout));
 router.get("/me", authenticate, asyncHandler(authController.me));
 
