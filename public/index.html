@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Socket Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 16px;
+    }
+
+    button {
+      padding: 10px 16px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+
+    #log {
+      margin-top: 20px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      min-height: 200px;
+      white-space: pre-wrap;
+      background: #f7f7f7;
+    }
+  </style>
+</head>
+<body>
+  <h1>Socket.IO test</h1>
+
+  <button id="connectBtn">Connect</button>
+  <button id="pingBtn">Send ping</button>
+  <button id="joinBtn">Join room user:1</button>
+
+  <div id="log"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const logEl = document.getElementById("log");
+    const connectBtn = document.getElementById("connectBtn");
+    const pingBtn = document.getElementById("pingBtn");
+    const joinBtn = document.getElementById("joinBtn");
+
+    let socket = null;
+
+    function log(message) {
+      logEl.textContent += message + "\n";
+    }
+
+    connectBtn.addEventListener("click", () => {
+      if (socket) {
+        log("Already connected");
+        return;
+      }
+
+      socket = io();
+
+      socket.on("connect", () => {
+        log("Connected: " + socket.id);
+      });
+
+      socket.on("pongFromServer", (data) => {
+        log("Received pongFromServer: " + JSON.stringify(data));
+      });
+
+      socket.on("notification", (data) => {
+        log("Notification: " + JSON.stringify(data));
+      });
+
+      socket.on("disconnect", () => {
+        log("Disconnected");
+      });
+    });
+
+    pingBtn.addEventListener("click", () => {
+      if (!socket) {
+        log("Connect first");
+        return;
+      }
+
+      socket.emit("pingFromClient", {
+        text: "hello from browser",
+        time: new Date().toISOString(),
+      });
+
+      log("Sent pingFromClient");
+    });
+
+    joinBtn.addEventListener("click", () => {
+      if (!socket) {
+        log("Connect first");
+        return;
+      }
+
+      socket.emit("join", 1);
+      log("Joined room user:1");
+    });
+  </script>
+</body>
+</html>
