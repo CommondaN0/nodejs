@@ -9,6 +9,7 @@
   "dependencies": {
     "@sequelize/core": "^7.0.0-alpha.48",
     "@sequelize/postgres": "^7.0.0-alpha.48",
+    "dotenv": "^17.4.0",
     "express": "^5.2.1",
     "pg": "^8.20.0"
   }
